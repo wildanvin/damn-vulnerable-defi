@@ -18,7 +18,7 @@ contract UnstoppableVault is IERC3156FlashLender, ReentrancyGuard, Owned, ERC462
     uint256 public constant FEE_FACTOR = 0.05 ether;
     uint64 public constant GRACE_PERIOD = 30 days;
 
-    uint64 public immutable end = uint64(block.timestamp) + GRACE_PERIOD;
+    uint64 public immutable end = uint64(block.timestamp) + GRACE_PERIOD; //@audit-info note the uint64 casting
 
     address public feeRecipient;
 
@@ -73,7 +73,7 @@ contract UnstoppableVault is IERC3156FlashLender, ReentrancyGuard, Owned, ERC462
      */
     function totalAssets() public view override returns (uint256) {
         assembly { // better safe than sorry
-            if eq(sload(0), 2) {
+            if eq(sload(0), 2) { // @audit-issue it is checking that slot 0 is equal to 2 wtf
                 mstore(0x00, 0xed3ba6a6)
                 revert(0x1c, 0x04)
             }
@@ -93,7 +93,8 @@ contract UnstoppableVault is IERC3156FlashLender, ReentrancyGuard, Owned, ERC462
         if (amount == 0) revert InvalidAmount(0); // fail early
         if (address(asset) != _token) revert UnsupportedCurrency(); // enforce ERC3156 requirement
         uint256 balanceBefore = totalAssets();
-        if (convertToShares(totalSupply) != balanceBefore) revert InvalidBalance(); // enforce ERC4626 requirement
+        if (convertToShares(totalSupply) != balanceBefore) revert InvalidBalance(); // enforce ERC4626 requirement @audit-info total supply of shares should be equal to totalAssets
+
         uint256 fee = flashFee(_token, amount);
         // transfer tokens out + execute callback on receiver
         ERC20(_token).safeTransfer(address(receiver), amount);
