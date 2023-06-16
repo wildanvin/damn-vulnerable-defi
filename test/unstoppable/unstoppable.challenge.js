@@ -23,6 +23,14 @@ describe('[Challenge] Unstoppable', function () {
       deployer.address, // owner
       deployer.address // fee recipient
     )
+
+    console.log(`Deployer is: ${deployer.address}`)
+
+    // Output first 10 storage slots of the vault contract
+    for (let i = 0; i < 10; i++) {
+      const slotValue = await ethers.provider.getStorageAt(vault.address, i)
+      console.log(`Storage slot ${i}: ${slotValue}`)
+    }
     expect(await vault.asset()).to.eq(token.address)
 
     await token.approve(vault.address, TOKENS_IN_VAULT)
