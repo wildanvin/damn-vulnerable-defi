@@ -93,7 +93,7 @@ contract UnstoppableVault is IERC3156FlashLender, ReentrancyGuard, Owned, ERC462
         if (amount == 0) revert InvalidAmount(0); // fail early
         if (address(asset) != _token) revert UnsupportedCurrency(); // enforce ERC3156 requirement
         uint256 balanceBefore = totalAssets();
-        if (convertToShares(totalSupply) != balanceBefore) revert InvalidBalance(); // enforce ERC4626 requirement @audit-info total supply of shares should be equal to totalAssets
+        if (convertToShares(totalSupply) != balanceBefore) revert InvalidBalance(); // enforce ERC4626 requirement @audit-issue total supply of shares should be equal to totalAssets and that is the issue, the accounting of the contract. If you send some tokens to the contract this statement won't be true anymore and it will stop doing flash loans
 
         uint256 fee = flashFee(_token, amount);
         // transfer tokens out + execute callback on receiver
