@@ -21,14 +21,14 @@ contract NaiveReceiverLenderPool is ReentrancyGuard, IERC3156FlashLender {
     error UnsupportedCurrency();
     error CallbackFailed();
 
-    function maxFlashLoan(address token) external view returns (uint256) {
+    function maxFlashLoan(address token) external view returns (uint256) { //@audit-info function not used
         if (token == ETH) {
             return address(this).balance;
         }
         return 0;
     }
 
-    function flashFee(address token, uint256) external pure returns (uint256) {
+    function flashFee(address token, uint256) external pure returns (uint256) { //@audit-info function not used
         if (token != ETH)
             revert UnsupportedCurrency();
         return FIXED_FEE;

@@ -12,7 +12,7 @@ import "./NaiveReceiverLenderPool.sol";
  */
 contract FlashLoanReceiver is IERC3156FlashBorrower {
 
-    address private pool;
+    address private pool; //@audit-info the pool should be of type IERC3156FlashLender, could that be an issue?
     address private constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     error UnsupportedCurrency();
@@ -22,14 +22,14 @@ contract FlashLoanReceiver is IERC3156FlashBorrower {
     }
 
     function onFlashLoan(
-        address,
+        address, // @audit-info initiator address skipped
         address token,
         uint256 amount,
         uint256 fee,
-        bytes calldata
+        bytes calldata //@audit-info data bytes32 skipped too
     ) external returns (bytes32) {
         assembly { // gas savings
-            if iszero(eq(sload(pool.slot), caller())) {
+            if iszero(eq(sload(pool.slot), caller())) { //@audit-info it is making sure that the caller is the pool
                 mstore(0x00, 0x48f5c3ed)
                 revert(0x1c, 0x04)
             }
