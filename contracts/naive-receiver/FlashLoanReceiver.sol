@@ -22,7 +22,7 @@ contract FlashLoanReceiver is IERC3156FlashBorrower {
     }
 
     function onFlashLoan(
-        address, // @audit-info initiator address skipped
+        address, // @audit-issue initiator address skipped everyone can take flash loans and this contract will pay the fee
         address token,
         uint256 amount,
         uint256 fee,

