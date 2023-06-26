@@ -29,7 +29,7 @@ contract TrusterLenderPool is ReentrancyGuard {
         uint256 balanceBefore = token.balanceOf(address(this));
 
         token.transfer(borrower, amount);
-        target.functionCall(data);
+        target.functionCall(data);//@audit-info my guess is that here is where the exploit should happen. Target can be this contract but that wouldnt make sense because of the modifier, it can be the token or it can be a custom contract 
 
         if (token.balanceOf(address(this)) < balanceBefore)
             revert RepayFailed();
