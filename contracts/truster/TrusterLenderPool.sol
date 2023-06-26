@@ -29,7 +29,7 @@ contract TrusterLenderPool is ReentrancyGuard {
         uint256 balanceBefore = token.balanceOf(address(this));
 
         token.transfer(borrower, amount);
-        target.functionCall(data);//@audit-info my guess is that here is where the exploit should happen. Target can be this contract but that wouldnt make sense because of the modifier, it can be the token or it can be a custom contract 
+        target.functionCall(data);//@audit-issue here we can call whatever contract we want with any data. The exploit works because we can call approve fron this contract to the DVT and once the tokens are approved we call transferFrom. 
 
         if (token.balanceOf(address(this)) < balanceBefore)
             revert RepayFailed();
