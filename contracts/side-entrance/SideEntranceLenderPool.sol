@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "solady/src/utils/SafeTransferLib.sol";
+import "hardhat/console.sol";
 
 interface IFlashLoanEtherReceiver {
     function execute() external payable;
@@ -30,7 +31,7 @@ contract SideEntranceLenderPool {
     function withdraw() external {
         uint256 amount = balances[msg.sender];
         
-        delete balances[msg.sender];
+        delete balances[msg.sender]; //@audit-info I didn't know you could delete in a mapping... cool
         emit Withdraw(msg.sender, amount);
 
         SafeTransferLib.safeTransferETH(msg.sender, amount);
@@ -41,6 +42,8 @@ contract SideEntranceLenderPool {
 
         IFlashLoanEtherReceiver(msg.sender).execute{value: amount}();
 
+        console.log("Balance after:");
+        console.log(address(this).balance);
         if (address(this).balance < balanceBefore)
             revert RepayFailed();
     }
