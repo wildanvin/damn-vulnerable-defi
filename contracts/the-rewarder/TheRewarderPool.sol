@@ -55,7 +55,7 @@ contract TheRewarderPool {
         }
 
         accountingToken.mint(msg.sender, amount);
-        distributeRewards();
+        distributeRewards(); //@audit the rewards shouldn't be distributed just after the deposit. I can deposit and withdraw in the same tx and also I can use a flash loan to get all the rewards.
 
         SafeTransferLib.safeTransferFrom(
             liquidityToken,
