@@ -30,7 +30,7 @@ contract SimpleGovernance is ISimpleGovernance {
         if (data.length > 0 && target.code.length == 0)
             revert TargetMustHaveCode();
 
-        actionId = _actionCounter;
+        actionId = _actionCounter; //@audit-info notice here how "uint256" is not needed because it is in L23
 
         _actions[actionId] = GovernanceAction({
             target: target,
